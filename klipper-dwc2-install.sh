@@ -118,7 +118,7 @@ make menuconfig
 echo "Compiling the micro firmware..."
 sleep 2
 make
-echo "The firmware is ready! You also found it at ~/klipper/src/klipper.elf.hex"
+echo "The firmware is ready! You also found it at ~/klipper/src/klipper.elf.hex or ~/klipper/out/klipper.bin"
 sleep 3
 while true
   do
@@ -187,7 +187,7 @@ EOF
             sudo systemctl stop klipper
             cd ~/klipper
             echo "Renaming the klipper.elf.hex to firmware.bin..."
-            cp -v ~/klipper/out/klipper.elf.hex ~/klipper/out/firmware.bin
+            cp -v ~/klipper/out/klipper.bin ~/klipper/out/firmware.bin
             echo "Please insert an SDCARD (min. 128MB)..."
             read -n 1 -s -r -p "Press any key to continue"
             check_sdcard=$(ls -A /dev/sda)
