@@ -22,6 +22,7 @@ one(){
   else
     echo "KLIPPER is not installed!"
     sleep 2
+    cd ~/
     echo "Cloning the KLIPPER folder From GITHUB..."
     git clone https://github.com/KevinOConnor/klipper.git
     while true
