@@ -297,12 +297,6 @@ five(){
   echo "Reconnecting dwc2-for-klipper as an extra module for klippy..."
   rm ~/klipper/klippy/extras/web_dwc2.py
   ln -s ~/dwc2-for-klipper/web_dwc2.py ~/klipper/klippy/extras/web_dwc2.py
-  echo "Removing the ~/klipper/klippy/gcode.py file"
-  sleep 2
-  rm ~/klipper/klippy/gcode.py
-  echo "Restoring the ~/klipper/klippy/gcode.py original file from backup"
-  sleep 2
-  cp -av ~/klipper/klippy/gcode.py_backup ~/klipper/klippy/gcode.py
   echo "Doing some more magic... Correcting some stuff in ~/klipper/klippy/gcode.py"
   sleep 2
   # make changes in klipper we need
