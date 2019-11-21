@@ -3,6 +3,7 @@ EDITOR=nano
 PASSWD=/etc/passwd
 RED=`tput setaf 1`
 GREEN=`tput setaf 2`
+
 BG_CYAN=`tput setab 6`
 BG_WHITE=`tput setab 7`
 RESET=`tput sgr0`
@@ -14,17 +15,18 @@ pause(){
 one(){
   DIR=~/klipper
   SERV=/etc/init.d/klipper
-  if [ -d "$DIR" ] && [ -s "$SERV" ]; then
-    echo "KLIPPER is already installed!"
-    sleep 2
-    echo "Nothing to do here..."
+  if [  -d "$DIR" ]; then
+    echo "KLIPPER is installed!"
     sleep 2
   else
-    echo "KLIPPER is not installed!"
-    sleep 2
+    echo "KLIPPER is NOT installed!"
     cd ~/
     echo "Cloning the KLIPPER folder From GITHUB..."
+    sleep 2
     git clone https://github.com/KevinOConnor/klipper.git
+    
+    sleep 2 
+  
     while true
     do
       clear
@@ -270,7 +272,7 @@ if [ -d "$DIR" ] && [ -s "$SERV" ]; then
   mkdir -p ~/sdcard/dwc2/web
   echo "Downloading the official new DWC2 RC7, from Chrishamm GITHUB..."
   cd ~/sdcard/dwc2/web
-  wget https://github.com/chrishamm/DuetWebControl/releases/download/2.0.0-RC7/DuetWebControl-Duet2.zip
+  wget https://github.com/chrishamm/DuetWebControl/releases/download/2.0.4/DuetWebControl-SD.zip
   echo "unzip the hell out of it..."
   unzip *.zip && for f_ in $(find . | grep '.gz');do gunzip ${f_};done
   echo "Installation done! Congrats!"
@@ -311,7 +313,7 @@ five(){
   echo "Downloading the official new DWC2 RC7, from Chrishamm GITHUB..."
   cd ~/sdcard/dwc2/web
   rm *.zip
-  wget https://github.com/chrishamm/DuetWebControl/releases/download/2.0.0-RC7/DuetWebControl-Duet2.zip
+  wget https://github.com/chrishamm/DuetWebControl/releases/download/2.0.4/DuetWebControl-SD.zip
   echo "unzip the hell out of it..."
   unzip *.zip && for f_ in $(find . | grep '.gz');do gunzip ${f_};done
   rm *.zip
