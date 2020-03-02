@@ -74,7 +74,6 @@ one(){
       (3)${array[2]}
       (4)${array[3]}
       (5)${array[4]}
-      (6)klipper-uninstall
       (Q)uit
       ---------------------------------
 EOF
@@ -90,8 +89,6 @@ EOF
         "4")  ./${array[3]}
         break ;;
         "5")  ./${array[4]}
-        break ;;
-        "6")  ./klipper-uninstall.sh
         break ;;
         "Q") break ;;
         "q") echo "case sensitive!!"  ;;
@@ -298,9 +295,10 @@ if [ -d "$DIR" ]; then
   rm -Rf ~/sdcard/dwc2/web
   mkdir -p ~/sdcard/dwc2/web
   mkdir -p ~/sdcard/sys
-  echo "Downloading the official new DWC2 RC7, from Chrishamm GITHUB..."
+  echo "Downloading the official new DWC release, from Chrishamm GITHUB..."
   cd ~/sdcard/dwc2/web
-  wget https://github.com/chrishamm/DuetWebControl/releases/download/2.0.4/DuetWebControl-SD.zip
+  latest_DWC=`curl -s https://api.github.com/repos/chrishamm/duetwebcontrol/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep SD`
+  wget $latest_DWC
   echo "unzip the hell out of it..."
   unzip *.zip && for f_ in $(find . | grep '.gz');do gunzip ${f_};done
   echo "Installation done! Congrats!"
@@ -339,10 +337,11 @@ five(){
   echo "Creating a new folder for it..."
   mkdir -p ~/sdcard/dwc2/web
   mkdir -p ~/sdcard/sys
-  echo "Downloading the official new DWC2 RC7, from Chrishamm GITHUB..."
+  echo "Downloading the official new DWC release, from Chrishamm GITHUB..."
   cd ~/sdcard/dwc2/web
   rm *.zip
-  wget https://github.com/chrishamm/DuetWebControl/releases/download/2.0.4/DuetWebControl-SD.zip
+  latest_DWC=`curl -s https://api.github.com/repos/chrishamm/duetwebcontrol/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep SD`
+  wget $latest_DWC
   echo "unzip the hell out of it..."
   unzip *.zip && for f_ in $(find . | grep '.gz');do gunzip ${f_};done
   rm *.zip
@@ -359,6 +358,13 @@ five(){
   tail /tmp/klippy.log
   sleep 10
   pause
+}
+
+six(){
+    cd ~/klipper-DWC2-installer
+    echo "Launching Klipper uninstall script..."
+    sleep 3
+    sh klipper-uninstall.sh
 }
  
 # function to display menus
@@ -401,15 +407,16 @@ show_menus() {
 '
  
     echo "====================="
-  echo "  INSTALL OR UPDATE  "
+    echo "  INSTALL OR UPDATE  "
     echo " KLIPPER & DWC2 MENU "
     echo "====================="
     echo "1. Install KLIPPER"
     echo "2. Update KLIPPER"
-  echo "3. Flash your MCU"
-  echo "4. Install DWC2"
-  echo "5. Update DWC2"
-    echo "6. Exit"
+    echo "3. Flash your MCU"
+    echo "4. Install DWC2"
+    echo "5. Update DWC2"
+    echo "6. Uninstall Klipper & DWC"
+    echo "7. Exit"
 }
 # read input from the keyboard and take a action
 # invoke the one() when the user select 1 from the menu option.
@@ -417,14 +424,15 @@ show_menus() {
 # Exit when user the user select 3 form the menu option.
 read_options(){
     local choice
-    read -p "Please choose what to do, then press [ENTER] [ 1 - 6] " choice
+    read -p "Please choose what to do, then press [ENTER] [ 1 - 7 ] " choice
     case $choice in
         1) one ;;
         2) two ;;
     3) three ;;
     4) four ;;
     5) five ;;
-    6) exit 0 ;;
+    6) six  ;;
+    7) exit 0 ;;
         *) echo -e "${RED}${BG_WHITE}Error...${RESET}" && sleep 2
     esac
 }
