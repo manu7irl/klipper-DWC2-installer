@@ -74,6 +74,7 @@ one(){
       (3)${array[2]}
       (4)${array[3]}
       (5)${array[4]}
+      (6)klipper-uninstall
       (Q)uit
       ---------------------------------
 EOF
@@ -89,6 +90,8 @@ EOF
         "4")  ./${array[3]}
         break ;;
         "5")  ./${array[4]}
+        break ;;
+        "6")  ./klipper-uninstall.sh
         break ;;
         "Q") break ;;
         "q") echo "case sensitive!!"  ;;
@@ -255,7 +258,7 @@ echo "Stopping KLIPPER service..."
 sudo systemctl stop klipper
 DIR=~/klipper
 SERV=/etc/init.d/klipper
-if [ -d "$DIR" ] && [ -s "$SERV" ]; then
+if [ -d "$DIR" ]; then
   echo "Cleaning old klipper_backup folder, if any..."
   sleep 2
   rm -fR klipper_backup
@@ -294,6 +297,7 @@ if [ -d "$DIR" ] && [ -s "$SERV" ]; then
   echo "Creating a folder for nesting the DuetWebControl UI files"
   rm -Rf ~/sdcard/dwc2/web
   mkdir -p ~/sdcard/dwc2/web
+  mkdir -p ~/sdcard/sys
   echo "Downloading the official new DWC2 RC7, from Chrishamm GITHUB..."
   cd ~/sdcard/dwc2/web
   wget https://github.com/chrishamm/DuetWebControl/releases/download/2.0.4/DuetWebControl-SD.zip
@@ -333,7 +337,8 @@ five(){
   echo "removing the old web folder for DWC2..."
   rm -fR ~/sdcard/dwc2/web
   echo "Creating a new folder for it..."
-  mkdir ~/sdcard/dwc2/web
+  mkdir -p ~/sdcard/dwc2/web
+  mkdir -p ~/sdcard/sys
   echo "Downloading the official new DWC2 RC7, from Chrishamm GITHUB..."
   cd ~/sdcard/dwc2/web
   rm *.zip
