@@ -108,10 +108,13 @@ cd ~/klipper
 echo "Copying KLIPPER folder to klipper_backup, just in case..."
 sleep 2
 cp -avr ~/klipper/ ~/klipper_backup
+rm -rf ~/klipper
 echo "Updating the KLIPPER folder from github..."
 git pull
 echo "KLIPPER is up to date!"
 sleep 2
+echo "Update also DWC install, as updating klipper removes the change made for it to work!"
+sleep 5
 echo "You may need to reflash your MCU for the changes to take effect"
 sleep 3
 echo "Restarting KLIPPER service"
