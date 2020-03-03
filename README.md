@@ -12,8 +12,8 @@ To run it:
 you will be presented to an interactive menu to install or update your system.
 
 Todo list:
-- uninstall klipper script integration
+- uninstall klipper script integration (DONE)
 - automatic install of generic printer.cfg, if needed
-- script to create a klipper back-end server services to run multiple printers against it
-- automatic DWC update based on DWC releases
+- script to create a klipper back-end server services to run multiple printers against it (STARTED)
+- automatic DWC update based on DWC releases (DONE)
 
