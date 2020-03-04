@@ -110,7 +110,7 @@ sleep 2
 cp -avr ~/klipper/ ~/klipper_backup
 rm -rf ~/klipper
 echo "Updating the KLIPPER folder from github..."
-git pull
+git clone https://github.com/KevinOConnor/klipper.git
 echo "KLIPPER is up to date!"
 sleep 2
 echo "Update also DWC install, as updating klipper removes the change made for it to work!"
@@ -324,7 +324,7 @@ pause
  
 five(){
   cd ~/dwc2-for-klipper
-  git pull
+  git clone https://github.com/Stephan3/dwc2-for-klipper.git
   echo "Reconnecting dwc2-for-klipper as an extra module for klippy..."
   rm ~/klipper/klippy/extras/web_dwc2.py
   ln -s ~/dwc2-for-klipper/web_dwc2.py ~/klipper/klippy/extras/web_dwc2.py
