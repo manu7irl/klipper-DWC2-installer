@@ -1,7 +1,8 @@
 #!/bin/bash
 EDITOR=nano
 PASSWD=/etc/passwd
- 
+sudo usermod -a -G dialout $USER
+sudo usermod -a -G tty $USER
 pause(){
   read -p "Press [Enter] to return to the main menu..." fackEnterKey
 }
