@@ -7,7 +7,7 @@ To run it:
 `cd ~`   
 `git clone https://github.com/manu7irl/klipper-DWC2-installer`  
 `cd klipper-DWC2-installer`  
-`./klipper-dwc2-installer.sh`
+`./klipper-dwc2-install.sh`
 
 you will be presented to an interactive menu to install or update your system.
 
