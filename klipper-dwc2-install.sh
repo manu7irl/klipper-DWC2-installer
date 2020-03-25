@@ -307,8 +307,26 @@ if [ -d "$DIR" ]; then
   unzip *.zip && for f_ in $(find . | grep '.gz');do gunzip ${f_};done
   echo "Installation done! Congrats!"
   sleep 2
-  echo "Do not forget to add a [virtual_sdcard] and a [web_dwc2] sections, in your printer.cfg file, as describe in Stephan3 GITHUB"
+  echo "Creating the default sections [virtual_sdcard] and [web_dwc2], in your printer.cfg file, as describe in Stephan3 GITHUB"
   sleep 5
+  cd ~
+  cat << EOF >> ~/printer.cfg
+  ########################
+  # DWC REQUIRED SECTIONS
+  ########################
+
+  [virtual_sdcard]
+  path: ~/sdcard #this path is auto-created by the script, just need klipper to point to it
+  [web_dwc2]
+  # optional - defaulting to Klipper
+  printer_name: My_own_klipper_printer
+  # optional - defaulting to 127.0.0.1
+  listen_adress: 0.0.0.0
+  # needed - use above 1024 as nonroot user
+  listen_port: 4750
+  #	optional defaulting to dwc2/web. Its a folder relative to your virtual sdcard.
+  web_path: dwc2/web
+EOF
   echo "restarting the KLIPPER service"
   sudo systemctl start klipper
   sleep 3
@@ -351,8 +369,26 @@ five(){
   rm *.zip
   echo "Installation done! Congrats!"
   sleep 2
-  echo "Do not forget to add a [virtual_sdcard] and a [web_dwc2] sections, in your printer.cfg file, as describe in Stephan3 GITHUB"
+  echo "Creating the default sections [virtual_sdcard] and [web_dwc2], in your printer.cfg file, as describe in Stephan3 GITHUB"
   sleep 5
+  cd ~
+  cat << EOF >> ~/printer.cfg
+  ########################
+  # DWC REQUIRED SECTIONS
+  ########################
+
+  [virtual_sdcard]
+  path: ~/sdcard #this path is auto-created by the script, just need klipper to point to it
+  [web_dwc2]
+  # optional - defaulting to Klipper
+  printer_name: My_own_klipper_printer
+  # optional - defaulting to 127.0.0.1
+  listen_adress: 0.0.0.0
+  # needed - use above 1024 as nonroot user
+  listen_port: 4750
+  #	optional defaulting to dwc2/web. Its a folder relative to your virtual sdcard.
+  web_path: dwc2/web
+EOF
   echo "restarting the KLIPPER service"
   sudo systemctl start klipper
   sleep 2

@@ -11,6 +11,7 @@ To run it:
 
 You will be presented to an interactive menu to install or update your system.   
 If you install DWC for the first time, coppy and add this to your printer.cfg file, for it to work properly:
+
 `[virtual_sdcard]
 path: ~/sdcard #this path is auto-created by the script, just need klipper to point to it
 
