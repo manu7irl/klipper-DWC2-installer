@@ -105,7 +105,7 @@ pause
 two(){
 echo "Stopping KLIPPER service..."
 sudo systemctl stop klipper
-cd ~/klipper
+cd ~
 echo "Copying KLIPPER folder to klipper_backup, just in case..."
 sleep 2
 cp -avr ~/klipper/ ~/klipper_backup
