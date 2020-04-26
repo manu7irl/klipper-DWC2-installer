@@ -22,7 +22,7 @@ while true; do
 	esac
 done	
 while true; do
-	echo "How many OctoPrint instances (one main install + (n)*instances) are needed?"
+	echo "How many 3D-printers do you want to run on it?"
 	read printerCount
 	octo_session=1
 	one_install=0
@@ -30,7 +30,7 @@ while true; do
 	
 	if [ $(($printer_number)) == $(($one_install)) ];
 		then
-			read -p "Only $octo_session the main OctoPrint instance will be install without instances, are you sure?[Y/N]" yn
+			read -p "Only $octo_session main OctoPrint instance will be install without instances, are you sure?[Y/N]" yn
 			case $yn in
 				[Yy]* ) break;;
         		[Nn]* ) continue;;
@@ -47,42 +47,46 @@ while true; do
 	fi		
 done
 
-echo "Thanks! Full steam ahead to install $printerCount OctoPrint instance(s) in $installLocation"
+echo "Thanks! Full steam ahead to install $printerCount OctoPrint instance(s) in $installLocation/Octoprint"
 echo "There are sudo commands contained within, you will be asked for your sudo password in the next step"
 sleep 5
 echo "Just preparing your system for install"
 echo "..."
 sudo apt update && sudo apt install git python-pip python-dev python-setuptools python-virtualenv git libyaml-dev build-essential -y &> /dev/null
 echo "Done!"
-echo "Just making sure your $userSelect has the correct permissions"
+echo "Just making sure $userSelect has the correct permissions"
 echo "..."
 sudo usermod -a -G tty $userSelect &> /dev/null
 sudo usermod -a -G dialout $userSelect &> /dev/null
 echo "Done!"
-echo "Now I will handle the installations of your $printerCount OctoPrint instance(s) "
+echo "Now I will handle $printerCount OctoPrint instance(s) install "
 echo "..."
 mkdir $installLocation/OctoprintFarm &> /dev/null
 cd $installLocation/OctoprintFarm &> /dev/null
 echo "Done!"
 echo "Downloading Latest OctoPrint version from Github"
 echo "..."
-mkdir OctoPrint && cd OctoPrint &> /dev/null
+mkdir $installLocation/OctoPrint && cd $installLocation/OctoPrint &> /dev/null
 virtualenv venv &> /dev/null &> /dev/null
 source venv/bin/activate &> /dev/null
 echo "Setting up the initial octoprint instance"
 pip install pip --upgrade &> /dev/null
 pip install https://get.octoprint.org/latest &> /dev/null
 echo "Done!"
-if [ ! -f $installLocation/OctoprintFarm/octoprint.init ];
+
+mkdir $installLocation/OctoprintFarm/service-files
+cd $installLocation/OctoprintFarm/service-files
+servicefolder=$installLocation/OctoprintFarm/service-files
+if [ ! -f $servicefolder/octoprint.init ];
 then
-    echo "Downloading init...."
-    wget https://github.com/foosel/OctoPrint/raw/master/scripts/octoprint.init -P $installLocation/OctoprintFarm
+    echo "Downloading init file...."
+    wget https://github.com/foosel/OctoPrint/raw/master/scripts/octoprint.init -P $servicefolder &> /dev/null
     echo "Done!"
 fi
-if [ ! -f $installLocation/OctoprintFarm/octoprint.default ];
+if [ ! -f $servicefolder/octoprint.default ];
 then
-    echo "Downloading init...."
-    wget https://github.com/foosel/OctoPrint/raw/master/scripts/octoprint.default -P $installLocation/OctoprintFarm
+    echo "Downloading default file...."
+    wget https://github.com/foosel/OctoPrint/raw/master/scripts/octoprint.default -P $servicefolder &> /dev/null
     echo "Done!"
 fi
 echo "Now we need to create a system service for each instance. Two sec's I'll get on it!"
@@ -90,15 +94,15 @@ echo "..."
 sudo systemctl daemon-reload
 PRT=5000
 CONcounter=0
-while [ $CONcounter -le $printerCount ]
+while [ $CONcounter -le $printer_number ]
 do
-	cd $installLocation/OctoprintFarm
+	cd $installLocation/OctoprintFarm/
 	if [ -d "$DIRECTORY" ]; then
  	mkdir .octoprint-$CONcounter
 	fi
 	PORTcounter=$(($PRT + $CONcounter))
-	cp $installLocation/octoprint.init $installLocation/OctoprintFarm/octoprint.init
-	cp $installLocation/octoprint.default $installLocation/OctoprintFarm/octoprint.default
+	cp $servicefolder/octoprint.init $installLocation/OctoprintFarm/octoprint.init
+	cp $servicefolder/octoprint.default $installLocation/OctoprintFarm/octoprint.default
 	sed -i "s/USER=pi/USER=$userSelect/g" octoprint.default
 	sed -i "s/PORT=5000/PORT=$PORTcounter/g" octoprint.default
 	sed -i "s+#DAEMON=/home/pi/OctoPrint/venv/bin/octoprint+DAEMON=$installLocation/OctoPrint/venv/bin/octoprint+g" octoprint.default
@@ -112,147 +116,162 @@ do
 	sudo mv octoprint.default /etc/default/octoprint-$CONcounter
 	sudo chmod +x /etc/init.d/octoprint-$CONcounter
 	sudo update-rc.d octoprint-$CONcounter defaults
+	sudo systemctl daemon-reload
 	sudo service octoprint-$CONcounter start
 	sleep 10
-	echo "Service octoprint-$CONcounter has started on http://$hostname:$PORTcounter or http://locahost:$PORTcounter"
+	echo "Service octoprint-$CONcounter has started on http://$(hostname):$PORTcounter or http://localhost:$PORTcounter"
 	((CONcounter++))
 done
 
 echo "Done!"
 echo "..."
 sleep 5
-echo "Congradulations.... You should have a load of printers running!"
-cd ~
-echo "Install webcam support"
-sudo apt install subversion libjpeg-dev imagemagick ffmpeg libv4l-dev cmake
-git clone https://github.com/jacksonliam/mjpg-streamer.git
-cd mjpg-streamer/mjpg-streamer-experimental
+echo "Congradulations.... You should have $printerCount instance(s)running!"
+
+cd $installLocation
+echo "Installing webcam support"
+echo "..."
+sudo apt install subversion libjpeg-dev imagemagick ffmpeg libv4l-dev cmake -y &> /dev/null
+git clone https://github.com/jacksonliam/mjpg-streamer.git &> /dev/null
+cd mjpg-streamer/mjpg-streamer-experimental/
 mkdir build && cd build
-cmake ..
-make
-sudo make install
+cmake .. &> /dev/null
+make &> /dev/null
+sudo make install &> /dev/null
+echo "Done!"
+
+echo "Creating webcam lauching scripts"
+echo "..."
 cd $installLocation/
 mkdir octo-scripts
-cd octo-scripts
-cat webcam < EOF
-#!/bin/bash
-# Start / stop streamer daemon
 
-case "$1" in
-    start)
-        /home/chris/scripts/webcamDaemon >/dev/null 2>&1 &
-        echo "$0: started"
-        ;;
-    stop)
-        pkill -x webcamDaemon
-        pkill -x mjpg_streamer
-        echo "$0: stopped"
-        ;;
-    *)
-        echo "Usage: $0 {start|stop}" >&2
-        ;;
-esac
-EOF
+cat &> /dev/null <<WEBCAM > $installLocation/octo-scripts/webcam
 
-cat webcamDaemon < EOF
-#!/bin/bash
+	#!/bin/bash
+	# Start / stop streamer daemon
 
-MJPGSTREAMER_HOME=/home/chris/mjpg-streamer/mjpg-streamer-experimental
-MJPGSTREAMER_INPUT_USB="input_uvc.so"
-MJPGSTREAMER_INPUT_RASPICAM="input_raspicam.so"
+	case "$1" in
+		start)
+			$installLocation/octo-scripts/webcamDaemon >/dev/null 2>&1 &
+			echo "$0: started"
+			;;
+		stop)
+			pkill -x webcamDaemon
+			pkill -x mjpg_streamer
+			echo "$0: stopped"
+			;;
+		restart)
+			pkill -x webcamDaemon
+			pkill -x mjpg_streamer
+			$installLocation/octo-scripts/webcamDaemon >/dev/null 2>&1 &
+			echo "$0: restarted"
+			;;
 
-# init configuration
-camera="auto"
-camera_usb_options="-r 640x480 -f 10"
-camera_raspi_options="-fps 10"
+		*)
+			echo "Usage: $0 {start|stop|restart}" >&2
+			;;
+	esac 
+WEBCAM
+ 
+cat &> /dev/null <<WEBCAMDAEMON > $installLocation/octo-scripts/webcamDaemon 
+	
+	#!/bin/bash
 
-if [ -e "/boot/octopi.txt" ]; then
+	MJPGSTREAMER_HOME=$installLocation/mjpg-streamer/mjpg-streamer-experimental
+	MJPGSTREAMER_INPUT_USB="input_uvc.so"
+	MJPGSTREAMER_INPUT_RASPICAM="input_raspicam.so"
+
+	# init configuration
+	camera="auto"
+	camera_usb_options="-r 640x480 -f 10"
+	camera_raspi_options="-fps 10"
+
+	if [ -e "/boot/octopi.txt" ]; then
     source "/boot/octopi.txt"
-fi
+	fi
 
-# runs MJPG Streamer, using the provided input plugin + configuration
-function runMjpgStreamer {
+	# runs MJPG Streamer, using the provided input plugin + configuration
+	function runMjpgStreamer {
     input=$1
     pushd $MJPGSTREAMER_HOME
     echo Running ./mjpg_streamer -o "output_http.so -w ./www" -i "$input"
     LD_LIBRARY_PATH=. ./mjpg_streamer -o "output_http.so -w ./www" -i "$input"
     popd
-}
+	}
 
-# starts up the RasPiCam
-function startRaspi {
+	# starts up the RasPiCam
+	function startRaspi {
     logger "Starting Raspberry Pi camera"
     runMjpgStreamer "$MJPGSTREAMER_INPUT_RASPICAM $camera_raspi_options"
-}
+	}
 
-# starts up the USB webcam
-function startUsb {
+	# starts up the USB webcam
+	function startUsb {
     logger "Starting USB webcam"
     runMjpgStreamer "$MJPGSTREAMER_INPUT_USB $camera_usb_options"
-}
+	}
 
-# we need this to prevent the later calls to vcgencmd from blocking
-# I have no idea why, but that's how it is...
-vcgencmd version
+	# we need this to prevent the later calls to vcgencmd from blocking
+	# I have no idea why, but that's how it is...
+	vcgencmd version
 
-# echo configuration
-echo camera: $camera
-echo usb options: $camera_usb_options
-echo raspi options: $camera_raspi_options
+	# echo configuration
+	echo camera: $camera
+	echo usb options: $camera_usb_options
+	echo raspi options: $camera_raspi_options
 
-# keep mjpg streamer running if some camera is attached
-while true; do
-    if [ -e "/dev/video0" ] && { [ "$camera" = "auto" ] || [ "$camera" = "usb" ] ; }; then
+	# keep mjpg streamer running if some camera is attached
+	while true; do
+    	if [ -e "/dev/video0" ] && { [ "$camera" = "auto" ] || [ "$camera" = "usb" ] ; }; then
         startUsb
-    elif [ "`vcgencmd get_camera`" = "supported=1 detected=1" ] && { [ "$camera" = "auto" ] || [ "$camera" = "raspi" ] ; }; then
+    	elif [ "`vcgencmd get_camera`" = "supported=1 detected=1" ] && { [ "$camera" = "auto" ] || [ "$camera" = "raspi" ] ; }; then
         startRaspi
-    fi
-
+    	fi
     sleep 120
-done
-EOF
+	done
+WEBCAMDAEMON
 
-sudo chmod +x webcam*
+chmod +x $installLocation/octo-scripts/webcam*
 
-sudo cat /etc/rc.local < EOF
-#!/bin/sh -e
-#
-# rc.local
-#
-# This script is executed at the end of each multiuser runlevel.
-# Make sure that the script will "" on success or any other
-# value on error.
-#
-# In order to enable or disable this script just change the execution
-# bits.
-#
-# By default this script does nothing.
+cat <<AUTOSTART | sudo tee -a /etc/rc.local >/dev/null 
+	#!/bin/sh -e
+	#
+	# rc.local
+	#
+	# This script is executed at the end of each multiuser runlevel.
+	# Make sure that the script will "" on success or any other
+	# value on error.
+	#
+	# In order to enable or disable this script just change the execution
+	# bits.
+	#
+	# By default this script does nothing.
 
-/home/'$userSelect'/Octo-scripts/webcam start
+	$installLocation/Octo-scripts/webcam start
 
-exit0
+	exit0
+AUTOSTART
 
-EOF
+sudo chmod +x /etc/rc.local
+echo "Done!"
 
-sudo apt install avahi-daemon
+echo "Adding new hostname octolinux"
+echo "..."
+sudo apt install avahi-daemon -y &> /dev/null
 
-sudo cat /etc/hosts < EOF
+cat <<HOSTS | sudo tee -a /etc/hosts >/dev/null  
 
-127.0.0.1       localhost.localdomain   localhost
-::1             localhost6.localdomain6 localhost6
+	127.0.0.1       localhost.localdomain   localhost
+	::1             localhost6.localdomain6 localhost6
 
-# The following lines are desirable for IPv6 capable hosts
-::1     localhost ip6-localhost ip6-loopback
-fe00::0 ip6-localnet
-ff02::1 ip6-allnodes
-ff02::2 ip6-allrouters
-ff02::3 ip6-allhosts
+	# The following lines are desirable for IPv6 capable hosts
+	::1     localhost ip6-localhost ip6-loopback
+	fe00::0 ip6-localnet
+	ff02::1 ip6-allnodes
+	ff02::2 ip6-allrouters
+	ff02::3 ip6-allhosts
 
-127.0.0.1      octolinux
-
-EOF
-
-
-
-
+	127.0.0.1      octolinux
+HOSTS
+echo "Done!"
 
