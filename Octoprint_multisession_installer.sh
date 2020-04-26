@@ -52,7 +52,7 @@ echo "There are sudo commands contained within, you will be asked for your sudo 
 sleep 5
 echo "Just preparing your system for install"
 echo "..."
-sudo apt update && sudo apt install git python-pip python-dev python-setuptools python-virtualenv git libyaml-dev build-essential -y &> /dev/null
+sudo apt update &> /dev/null && sudo apt install git python-pip python-dev python-setuptools python-virtualenv git libyaml-dev build-essential -y &> /dev/null
 echo "Done!"
 echo "Just making sure $userSelect has the correct permissions"
 echo "..."
@@ -144,8 +144,8 @@ echo "Creating webcam lauching scripts"
 echo "..."
 cd $installLocation/
 mkdir octo-scripts
-
-cat &> /dev/null <<WEBCAM > $installLocation/octo-scripts/webcam
+mv $installLocation/octo-scripts/webcam $installLocation/octo-scripts/wecam_bak &> /dev/null
+cat &> /dev/null <<WEBCAM > $installLocation/octo-scripts/webcam &> /dev/null 
 
 	#!/bin/bash
 	# Start / stop streamer daemon
@@ -173,7 +173,8 @@ cat &> /dev/null <<WEBCAM > $installLocation/octo-scripts/webcam
 	esac 
 WEBCAM
  
-cat &> /dev/null <<WEBCAMDAEMON > $installLocation/octo-scripts/webcamDaemon 
+mv $installLocation/octo-scripts/webcamDaemon $installLocation/octo-scripts/wecamDaemon_bak &> /dev/null
+cat <<WEBCAMDAEMON > $installLocation/octo-scripts/webcamDaemon &> /dev/null 
 	
 	#!/bin/bash
 
@@ -233,7 +234,8 @@ WEBCAMDAEMON
 
 chmod +x $installLocation/octo-scripts/webcam*
 
-cat <<AUTOSTART | sudo tee -a /etc/rc.local >/dev/null 
+sudo mv /etc/rc.local /etc/rc.local_bak &> /dev/null
+cat <<AUTOSTART | sudo tee -a /etc/rc.local &>/dev/null 
 	#!/bin/sh -e
 	#
 	# rc.local
@@ -258,8 +260,8 @@ echo "Done!"
 echo "Adding new hostname octolinux"
 echo "..."
 sudo apt install avahi-daemon -y &> /dev/null
-
-cat <<HOSTS | sudo tee -a /etc/hosts >/dev/null  
+sudo mv /etc/hosts /etc/hosts_bak &> /dev/null
+cat <<HOSTS | sudo tee -a /etc/hosts &> /dev/null  
 
 	127.0.0.1       localhost.localdomain   localhost
 	::1             localhost6.localdomain6 localhost6
@@ -274,4 +276,57 @@ cat <<HOSTS | sudo tee -a /etc/hosts >/dev/null
 	127.0.0.1      octolinux
 HOSTS
 echo "Done!"
+
+echo "Adding permission to Octoprint $userSelect to reboot without password"
+echo "..."
+mv /etc/sudoers.d/octoprint-shutdown /etc/sudoers.d/octoprint-shutdown_bak &> /dev/null
+cat <<SUDOER | sudo tee -a /etc/sudoers.d/octoprint-shutdown &> /dev/null 
+
+	$userSelect ALL=NOPASSWD: /sbin/shutdown
+SUDOER
+echo "Done!"
+
+sudo apt install haproxy -y &> /dev/null
+sudo mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg_bak
+cat <<PROXY | sudo tee -a /etc/haproxy/haproxy.cfg &> /dev/null
+	global
+			maxconn 4096
+			user haproxy
+			group haproxy
+			daemon
+			log 127.0.0.1 local0 debug
+
+	defaults
+			log     global
+			mode    http
+			option  httplog
+			option  dontlognull
+			retries 3
+			option redispatch
+			option http-server-close
+			option forwardfor
+			maxconn 2000
+			timeout connect 5s
+			timeout client  15min
+			timeout server  15min
+
+	frontend public
+			bind :::80 v4v6
+			use_backend webcam if { path_beg /webcam/ }
+			default_backend octoprint
+
+	backend octoprint
+			reqrep ^([^\ :]*)\ /(.*)     \1\ /\2
+			option forwardfor
+			server octoprint1 127.0.0.1:5000
+
+	backend webcam
+			reqrep ^([^\ :]*)\ /webcam/(.*)     \1\ /\2
+			server webcam1  127.0.0.1:8080
+PROXY
+
+echo "Remember to reboot the computer at least once to complete the $printCount Octoprint instance(s) to fully set up"
+echo "Everything is Done!"
+
+
 
