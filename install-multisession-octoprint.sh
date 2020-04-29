@@ -30,14 +30,14 @@ while true; do
 	
 	if [ $(($printer_number)) == $(($one_install)) ];
 		then
-			read -p "Only $octo_session main OctoPrint instance will be install without instances, are you sure?[Y/N]" yn
+			read -p "Only $octo_session main OctoPrint service will be installed without instances, are you sure?[Y/N]" yn
 			case $yn in
 				[Yy]* ) break;;
         		[Nn]* ) continue;;
         		* ) echo "Please answer by yes (Y/y) or no (N/n).";;
     		esac
 		else
-			read -p "Only $print_number instances of OctoPrint will be installed, are you sure?[Y/N]" yn
+			read -p "Only $printerCount instances of OctoPrint  will be installed, are you sure?[Y/N]" yn
 			case $yn in
 				[Yy]* ) break;;
         		[Nn]* ) continue;;
@@ -96,18 +96,17 @@ PRT=5000
 CONcounter=0
 while [ $CONcounter -le $printer_number ]
 do
-	cd $installLocation/OctoprintFarm/
 	if [ -d "$DIRECTORY" ]; then
- 	mkdir .octoprint-$CONcounter
-	fi
+ 	mkdir $installLocation/OctoprintFarm/.octoprint-$CONcounter
+	fi 
 	PORTcounter=$(($PRT + $CONcounter))
 	cp $servicefolder/octoprint.init $installLocation/OctoprintFarm/octoprint.init
 	cp $servicefolder/octoprint.default $installLocation/OctoprintFarm/octoprint.default
 	sed -i "s/USER=pi/USER=$userSelect/g" octoprint.default
 	sed -i "s/PORT=5000/PORT=$PORTcounter/g" octoprint.default
 	sed -i "s+#DAEMON=/home/pi/OctoPrint/venv/bin/octoprint+DAEMON=$installLocation/OctoPrint/venv/bin/octoprint+g" octoprint.default
-	sed -i 's|#BASEDIR=/home/pi/.octoprint|BASEDIR='$installLocation'/.octoprint-'$CONcounter'|g' octoprint.default
-	sed -i 's|#CONFIGFILE=/home/pi/.octoprint/config.yaml|CONFIGFILE='$installLocation'/.octoprint-'$CONcounter'/config.yaml|g' octoprint.default
+	sed -i 's|#BASEDIR=/home/pi/.octoprint|BASEDIR='$installLocation'/OctoPrintFarm/.octoprint-'$CONcounter'|g' octoprint.default
+	sed -i 's|#CONFIGFILE=/home/pi/.octoprint/config.yaml|CONFIGFILE='$installLocation'/OctoPrintFarm/.octoprint-'$CONcounter'/config.yaml|g' octoprint.default
 	sed -i "s/UMASK=022/UMASK=022/g" octoprint.default
 	sed -i "s+DESC=\"OctoPrint\" Daemon\"+DESC=\"OctoPrint-$CONcounter Daemon\"+g" octoprint.init
 	sed -i "s+NAME=\"OctoPrint\"+NAME=\"OctoPrint-$CONcounter\"+g" octoprint.init
@@ -126,7 +125,7 @@ done
 echo "Done!"
 echo "..."
 sleep 5
-echo "Congradulations.... You should have $printerCount instance(s)running!"
+echo "Congradulations.... You should have $printerCount Octoprint instance(s) running!"
 
 cd $installLocation
 echo "Installing webcam support"
@@ -145,7 +144,7 @@ echo "..."
 cd $installLocation/
 mkdir octo-scripts
 mv $installLocation/octo-scripts/webcam $installLocation/octo-scripts/wecam_bak &> /dev/null
-cat &> /dev/null <<WEBCAM > $installLocation/octo-scripts/webcam &> /dev/null 
+cat &> /dev/null <<WEBCAM > $installLocation/octo-scripts/webcam
 
 	#!/bin/bash
 	# Start / stop streamer daemon
@@ -174,7 +173,7 @@ cat &> /dev/null <<WEBCAM > $installLocation/octo-scripts/webcam &> /dev/null
 WEBCAM
  
 mv $installLocation/octo-scripts/webcamDaemon $installLocation/octo-scripts/wecamDaemon_bak &> /dev/null
-cat <<WEBCAMDAEMON > $installLocation/octo-scripts/webcamDaemon &> /dev/null 
+cat &> /dev/null <<WEBCAMDAEMON > $installLocation/octo-scripts/webcamDaemon
 	
 	#!/bin/bash
 
@@ -235,7 +234,7 @@ WEBCAMDAEMON
 chmod +x $installLocation/octo-scripts/webcam*
 
 sudo mv /etc/rc.local /etc/rc.local_bak &> /dev/null
-cat <<AUTOSTART | sudo tee -a /etc/rc.local &>/dev/null 
+cat &> /dev/null<<AUTOSTART | sudo tee -a /etc/rc.local
 	#!/bin/sh -e
 	#
 	# rc.local
@@ -261,7 +260,7 @@ echo "Adding new hostname octolinux"
 echo "..."
 sudo apt install avahi-daemon -y &> /dev/null
 sudo mv /etc/hosts /etc/hosts_bak &> /dev/null
-cat <<HOSTS | sudo tee -a /etc/hosts &> /dev/null  
+cat &> /dev/null<<HOSTS | sudo tee -a /etc/hosts  
 
 	127.0.0.1       localhost.localdomain   localhost
 	::1             localhost6.localdomain6 localhost6
@@ -280,7 +279,7 @@ echo "Done!"
 echo "Adding permission to Octoprint $userSelect to reboot without password"
 echo "..."
 mv /etc/sudoers.d/octoprint-shutdown /etc/sudoers.d/octoprint-shutdown_bak &> /dev/null
-cat <<SUDOER | sudo tee -a /etc/sudoers.d/octoprint-shutdown &> /dev/null 
+cat &> /dev/null<<SUDOER | sudo tee -a /etc/sudoers.d/octoprint-shutdown 
 
 	$userSelect ALL=NOPASSWD: /sbin/shutdown
 SUDOER
@@ -288,7 +287,7 @@ echo "Done!"
 
 sudo apt install haproxy -y &> /dev/null
 sudo mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg_bak
-cat <<PROXY | sudo tee -a /etc/haproxy/haproxy.cfg &> /dev/null
+cat &> /dev/null<<PROXY | sudo tee -a /etc/haproxy/haproxy.cfg
 	global
 			maxconn 4096
 			user haproxy
