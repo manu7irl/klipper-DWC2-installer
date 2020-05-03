@@ -460,10 +460,10 @@ then
   report_status "Doing some more magic... Correcting some stuff in $KLIPPER/klippy/gcode.py"
   sleep 2
   # make changes in klipper we need
-  gcode=$(sed 's/self.bytes_read = 0/self.bytes_read = 0\n        self.respond_callbacks = []/g' klipper/klippy/gcode.py)
-  gcode=$(report_status "$gcode" | sed 's/# Response handling/def register_respond_callback(self, callback):\n        self.respond_callbacks.append(callback)/')
-  gcode=$(report_status "$gcode" | sed 's/os.write(self.fd, msg+"\\n")/os.write(self.fd, msg+"\\n")\n            for callback in self.respond_callbacks:\n                callback(msg+"\\n")/')
-  echo "$gcode" > $KLIPPER/klippy/gcode.py
+gcode=$(sed 's/self.bytes_read = 0/self.bytes_read = 0\n        self.respond_callbacks = []/g' klipper/klippy/gcode.py)
+gcode=$(echo "$gcode" | sed 's/# Response handling/def register_respond_callback(self, callback):\n        self.respond_callbacks.append(callback)/')
+gcode=$(echo "$gcode" | sed 's/os.write(self.fd, msg+"\\n")/os.write(self.fd, msg+"\\n")\n            for callback in self.respond_callbacks:\n                callback(msg+"\\n")/')
+echo "$gcode" > $KLIPPER/klippy/gcode.py
   report_status "Creating a folder for nesting the DuetWebControl UI files"
   report_status "Downloading the official latest DWC release, from Chrishamm GITHUB..."
   cd $SERV_F
@@ -538,10 +538,10 @@ dwc_update(){
   sleep 2
   cd $KlipperFarm
   # make changes in klipper we need
-  gcode=$(sed 's/self.bytes_read = 0/self.bytes_read = 0\n        self.respond_callbacks = []/g' klipper/klippy/gcode.py)
-  gcode=$(report_status "$gcode" | sed 's/# Response handling/def register_respond_callback(self, callback):\n        self.respond_callbacks.append(callback)/')
-  gcode=$(report_status "$gcode" | sed 's/os.write(self.fd, msg+"\\n")/os.write(self.fd, msg+"\\n")\n            for callback in self.respond_callbacks:\n                callback(msg+"\\n")/')
-  echo "$gcode" > $KLIPPER/klippy/gcode.py
+gcode=$(sed 's/self.bytes_read = 0/self.bytes_read = 0\n        self.respond_callbacks = []/g' klipper/klippy/gcode.py)
+gcode=$(echo "$gcode" | sed 's/# Response handling/def register_respond_callback(self, callback):\n        self.respond_callbacks.append(callback)/')
+gcode=$(echo "$gcode" | sed 's/os.write(self.fd, msg+"\\n")/os.write(self.fd, msg+"\\n")\n            for callback in self.respond_callbacks:\n                callback(msg+"\\n")/')
+echo "$gcode" > $KLIPPER/klippy/gcode.py
   cd $SERV_F
   latest_DWC=`curl -s https://api.github.com/repos/chrishamm/duetwebcontrol/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep SD`
   wget $latest_DWC &> /dev/null
