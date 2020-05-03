@@ -5,7 +5,8 @@ I run mine on orangepi zero with H2+ CPU 512MB and it works nicely.
 To run it:
 `cd ~`   
 `git clone https://github.com/manu7irl/klipper-DWC2-installer`  
-`cd klipper-DWC2-installer`  
+`cd klipper-DWC2-installer`
+`chmod +x`  
 `./installer.sh`  
 
 You will be presented to an interactive menu to install or update your system. 
@@ -27,17 +28,11 @@ listen_port: 4750
 #	optional defaulting to dwc2/web. Its a folder relative to your virtual sdcard.
 web_path: dwc2/web`
 
-*NEW*
-You can run the multisession-klipper script to install multiple instances:
-`cd ~
-cd klipper-DWC2-installer
-./install-multisession-klipper`
-
+**##NEW##**
 You will be presented to a set of question to decide to run it on which user and how many printers to be added.
-
 Todo list:
-Integrate the new multisession scripts under the main script framework (WIP)
-- automatic install of generic printer.cfg, if needed (WIP)
+Integrate the new multisession scripts under the main script framework (DONE)
+- automatic install of generic printer.cfg, if needed (DONE PARTIALLY)
 - uninstall klipper script integration (DONE)
 - automatic add to a current printer.cfg file the DWC & Virtual SDCARD sections (DONE)
 - script to create a klipper back-end server with multiple services to run multiple printers om it (DONE)
