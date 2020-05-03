@@ -38,8 +38,8 @@ while true; do
 	report_status "How many 3D-printers do you want to run on it?"
 	read printerCount
 	klipper_session=1
-	one_install=1
-	
+	octoprint_session=1
+    one_install=1
 	
 	if [ $(($printerCount)) == $(($one_install)) ];
 		then
@@ -65,12 +65,17 @@ report_status "Thanks! Full steam ahead to install $printerCount Klipper instanc
 # Step 0: Clone Klipper folder
 clone_klipper()
 {
+    cd $installLocation
+    if [ -d klipper ]; then
+    continue
+    else
     report_status "Cloning Klipper folder from Kevin's GITHUB main branch"
     report_status "..."
-    cd $installLocation
     git clone https://github.com/KevinOConnor/klipper &> /dev/null
     sleep 5
     report_status "Done!"
+    fi
+    
 }
 report_status "There are sudo commands contained within, you will be asked for your sudo password in the next step"
 sleep 5
@@ -120,7 +125,7 @@ create_virtualenv()
     [ ! -d ${PYTHONDIR} ] && virtualenv ${PYTHONDIR} &> /dev/null
 
     # Install/update dependencies
-    ${PYTHONDIR}/bin/pip install -r ${SRCDIR}/scripts/klippy-requirements.txt &> /dev/null
+    [ ! -d ${PYTHONDIR} ] && ${PYTHONDIR}/bin/pip install -r ${SRCDIR}/scripts/klippy-requirements.txt &> /dev/null
 }
 
 # Step 3: Install startup script
@@ -129,7 +134,7 @@ install_script()
     # Create systemd service file
     sudo systemctl daemon-reload
     CONcounter=1
-    PORT=4749
+    PORT=4750
     while [ $CONcounter -le $printerCount ]
     do
         mkdir -p $klipperfarm/printer-$CONcounter/sdcard
@@ -139,7 +144,7 @@ install_script()
         you will have to connect each printer separately first, 
         to find the serial path of each one and configure this under:
         [mcu]
-        serial: /dev/serial/by-id/myprinter1
+        serial: /dev/serial/by-id/myprinter-$CONcounter
 
         enter in your terminal: ls /dev/serial/by-id
         and you will get the physical path to your printer, 
