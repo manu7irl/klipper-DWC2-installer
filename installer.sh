@@ -607,7 +607,7 @@ do
 	fi		
 done
 
-report_status "Thanks! Full steam ahead to install $printerCount OctoPrint instance(s) in /Octoprint"
+report_status "Thanks! Full steam ahead to install $printerCount OctoPrint instance(s) in $OctoPrintFarm"
 report_status "There are sudo commands contained within, you will be asked for your sudo password in the next step"
 sleep 5
 report_status "Just preparing your system for install"
