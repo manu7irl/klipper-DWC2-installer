@@ -495,7 +495,7 @@ echo "$gcode" > $KLIPPER/klippy/gcode.py
             #########################
             # OPTIONAL DWC UI CONFIG
             #########################
-
+            #you can also point all your printer to the same sd
             [virtual_sdcard]
             path: $SDCARD
 
@@ -507,7 +507,9 @@ echo "$gcode" > $KLIPPER/klippy/gcode.py
             # needed - use above 1024 as nonroot
             listen_port: $(( ${PORT}+${printer_num} ))
             #	optional defaulting to dwc2/web. It's a folder relative to your $SDCARD path folder.
-            web_path: dwc2/web
+            web_path: $SDCARD/dwc2/web
+            # optional - defaulting to /tmp/printer, needed in order to get dwc multi-session
+            serial_path: /tmp/printer-$printer-num
 DWC2
     sleep 3
     new_port=$(( ${PORT}+${printer_num} ))
