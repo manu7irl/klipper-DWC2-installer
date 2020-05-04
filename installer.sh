@@ -649,7 +649,7 @@ octo_config=$OctoPrintFarm/.octoprint-$printer_num
 while (( $printer_num <= $session_num ))
 do
 	[ ! -d ${octo_config} ] && mkdir -p $OctoPrintFarm/.octoprint-$printer_num
-	PORTcounter=$(($PRT + $printer_num))
+	PORTcounter=$(( $PRT+$printer_num ))
 	cp $SERV_F/octoprint.init $OctoPrintFarm/octoprint.init
 	cp $SERV_F/octoprint.default $OctoPrintFarm/octoprint.default
 	sed -i "s/USER=pi/USER=$userSelect/g" octoprint.default
@@ -668,6 +668,7 @@ do
 	sudo systemctl daemon-reload
 	sudo service octoprint-$printer_num start
 	sleep 10
+  new_port=
 	report_status "Service octoprint-$printer_num has started on http://$(hostname):$PORTcounter or http://localhost:$PORTcounter"
 	printer_num=$(( printer_num+1 ))
 done
@@ -689,7 +690,7 @@ cmake .. &> /dev/null
 make &> /dev/null
 sudo make install &> /dev/null
 
-report_status "Creating webcam lauching scripts"
+report_status "Creating webcam lauching scripts in $OctPrintFarm/octo-scripts"
 report_status "..."
 cd $OctoPrintFarm
 [ ! -d ${OctoPrintFarm}/octo-scripts ] && mkdir -p $OctoPrintFarm/octo-scripts
@@ -827,7 +828,7 @@ cat &> /dev/null<<HOSTS | sudo tee -a /etc/hosts
 HOSTS
 
 
-report_status "Adding permission to Octoprint $userSelect to reboot without password"
+report_status "Adding permission to Octoprint $userSelect user to reboot without password"
 report_status "..."
 [ -f /etc/sudoers.d/octoprint-fhutdown ] && sudo mv /etc/sudoers.d/octoprint-fhutdown /etc/sudoers.d/octoprint-fhutdown.bak &> /dev/null
 cat &> /dev/null<<SUDOER | sudo tee -a /etc/sudoers.d/octoprint-fhutdown 
