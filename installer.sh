@@ -434,7 +434,7 @@ while (( $printer_num <= $session_num ))
 if [ -d ${KLIPPER} ] 
 then
   report_status "Adding some magic to make dwc2-for-klipper working..."
-  virtualenv $KLIPPER/$PYTHONDIR &> /dev/null
+  virtualenv $PYTHONDIR &> /dev/null
   ${PYTHONDIR}/bin/pip2 install tornado==5.1.1 &> /dev/null
   report_status "Cloning the dwc2-for-klipper folder from Stephan3 GITHUB..."
   cd $GITSRC
@@ -454,7 +454,7 @@ then
     report_status "$dwc2_module is linked to KLIPPY"
     sleep 2
   fi
-  report_status "Backup for $installLocation/PrinterFarm/klipper/klippy/gcode.py file"
+  report_status "Backup for $KLIPPER/klippy/gcode.py file"
   sleep 2
   rsync -a $KLIPPER/klippy/gcode.py $KLIPPER/klippy/gcode.py.bak &> /dev/null
   report_status "Doing some more magic... Correcting some stuff in $KLIPPER/klippy/gcode.py"
@@ -464,11 +464,15 @@ gcode=$(sed 's/self.bytes_read = 0/self.bytes_read = 0\n        self.respond_cal
 gcode=$(echo "$gcode" | sed 's/# Response handling/def register_respond_callback(self, callback):\n        self.respond_callbacks.append(callback)/')
 gcode=$(echo "$gcode" | sed 's/os.write(self.fd, msg+"\\n")/os.write(self.fd, msg+"\\n")\n            for callback in self.respond_callbacks:\n                callback(msg+"\\n")/')
 echo "$gcode" > $KLIPPER/klippy/gcode.py
+
   report_status "Creating a folder for nesting the DuetWebControl UI files"
   report_status "Downloading the official latest DWC release, from Chrishamm GITHUB..."
   cd $SERV_F
   latest_DWC=`curl -s https://api.github.com/repos/chrishamm/duetwebcontrol/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep SD`
-  [ ! -f *.zip ] && wget $latest_DWC &> /dev/null
+  [ -f *.zip ] && rm $SERV_F/*.zip 
+  wget $latest_DWC &> /dev/null
+  klipper_num=`find /etc/systemd/system -type f -name 'klipper-*' -printf x | wc -c`
+  session_num=$(( $klipper_num-1 ))
   printer_num=0
   PORT=4750
   while (( $printer_num <= $session_num ))
@@ -481,11 +485,12 @@ echo "$gcode" > $KLIPPER/klippy/gcode.py
     [ ! -f $SDCARD/dwc2/web/*.zip ] && rsync -a $SERV_F/*.zip $SDCARD/dwc2/web
     report_status "Installing the web server files on printer-$printer_num"
     cd $SDCARD/dwc2/web
-    unzip *.zip &> /dev/null && for f_ in $(find . | grep '.gz');do gunzip ${f_};done &> /dev/null
+    unzip *.zip && for f_ in $(find . | grep '.gz'); do gunzip ${f_}; done
+    rm $SDCARD/dwc2/web/*.zip
     sleep 2
     report_status "Creating the default sections [virtual_sdcard] and [web_dwc2], in your printer-$printer_num.cfg file, as describe in Stephan3 GITHUB"
     sleep 5
-    [ -f ${PRINTER_CFG} ] && cat &> /dev/null <<DWC2 >> $PRINTER_FOLDER/printer-$printer_num.cfg
+    [ -f ${PRINTER_CFG} ] && cat <<DWC2 >> $PRINTER_FOLDER/printer-$printer_num.cfg
             
             #########################
             # OPTIONAL DWC UI CONFIG
@@ -505,7 +510,8 @@ echo "$gcode" > $KLIPPER/klippy/gcode.py
             web_path: dwc2/web
 DWC2
     sleep 3
-      report_status "DWC2 server-$printer_num is running on http://$(hostname):$(( ${PORT}+${printer_num} )) or http://localhost:$(( ${PORT}+${printer_num} ))"
+    new_port=$(( ${PORT}+${printer_num} ))
+    report_status "DWC2 server-$printer_num is running on http://$(hostname):$new_port or http://localhost:$new_port"
   printer_num=$(( printer_num+1 ))
   done
   [ -f $SERV_F/*.zip ] && rm $SERV_F/*.zip    
@@ -530,41 +536,34 @@ pause
 dwc_update(){
   cd $GITSRC/dwc2-for-klipper
   git pull
+  rm -vRf $KLIPPER/dwc2-for-klipper &> /dev/null
   rsync -a $GITSRC/dwc2-for-klipper $KLIPPER
-  report_status "Reconnecting dwc2-for-klipper as an extra module for klippy..."
-  rm $KLIPPER/klippy/extras/web_dwc2.py
-  ln -f $KLIPPER/dwc2-for-klipper/web_dwc2.py $KLIPPER/klippy/extras/web_dwc2.py
-  report_status "Doing some more magic... Correcting some stuff in $KLIPPER/klippy/gcode.py"
-  sleep 2
-  cd $KlipperFarm
-  # make changes in klipper we need
-gcode=$(sed 's/self.bytes_read = 0/self.bytes_read = 0\n        self.respond_callbacks = []/g' klipper/klippy/gcode.py)
-gcode=$(echo "$gcode" | sed 's/# Response handling/def register_respond_callback(self, callback):\n        self.respond_callbacks.append(callback)/')
-gcode=$(echo "$gcode" | sed 's/os.write(self.fd, msg+"\\n")/os.write(self.fd, msg+"\\n")\n            for callback in self.respond_callbacks:\n                callback(msg+"\\n")/')
-echo "$gcode" > $KLIPPER/klippy/gcode.py
   cd $SERV_F
   latest_DWC=`curl -s https://api.github.com/repos/chrishamm/duetwebcontrol/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep SD`
   wget $latest_DWC &> /dev/null
-  report_status "removing the old web folder for DWC2, in $SDCARD/dwc2/..."
+  klipper_num=`find /etc/systemd/system -type f -name 'klipper-*' -printf x | wc -c`
+  session_num=$(( $klipper_num-1 ))
   printer_num=0
   PORT=4750
   while (( $printer_num <= $session_num ))
   do
     PRINTER_FOLDER=$KlipperFarm/printer-$printer_num
     SDCARD=$PRINTER_FOLDER/sdcard
+    report_status "removing the old web folder for DWC2, in $SDCARD/dwc2/..."
+    [ -d ${SDCARD}/dwc2/web ] && rm -vRf $SDCARD/dwc2/web &> /dev/null
     [ ! -d ${SDCARD}/dwc2/web ] && mkdir -p $SDCARD/dwc2/web
     [ ! -d ${SDCARD}/sys ] && mkdir -p $SDCARD/sys
     [ -f ${SDCARD}/dwc2/web/*.zip ] && rm $SDCARD/dwc2/web/*.zip
     rsync -a $SERV_F/*.zip $SDCARD/dwc2/web
     report_status "Installing the web server files on printer-$printer_num"
     cd $SDCARD/dwc2/web
-    unzip *.zip &> /dev/null && for f_ in $(find . | grep '.gz');do gunzip ${f_};done &> /dev/null
+    unzip *.zip && for f_ in $(find . | grep '.gz'); do gunzip ${f_}; done
     sleep 2
-    report_status "DWC2 server-$printer_num is running on http://$(hostname):$(( ${PORT}+${printer_num} )) or http://localhost:$(( ${PORT}+${printer_num} ))"
+    new_port=$(( ${PORT}+${printer_num} ))
+    report_status "DWC2 server-$printer_num is running on http://$(hostname):$new_port or http://localhost:$new_port"
     printer_num=$(( printer_num+1 ))
   done
 rm $SERV_F/*.zip  
-
 report_status "..."
 sleep 5
 report_status "Congradulations... You should have $printerCount DWC2 server(s) updated!"
@@ -884,8 +883,6 @@ pause
 klipper_dwc_uninstall(){
     report_status "Launching Klipper uninstall script..."
     sleep 3
-    report_status "#### Stopping Klipper Service..."
-sleep 3
 klipper_num=`find /etc/systemd/system -type f -name 'klipper-*' -printf x | wc -c`
 session_num=$(( $klipper_num-1 ))
 
@@ -894,13 +891,13 @@ printer_num=0
 while (( $printer_num <= $session_num ))
   do
   report_status "Stopping klipper-$printer_num service..."
-  sudo systemctl stop klipper-$printer_num
+  sudo systemctl stop klipper-$printer_num &> /dev/null
   sleep 1
   report_status "Disabling klipper-$printer_num service..."
-  sudo systemctl disable klipper-$printer_num
+  sudo systemctl disable klipper-$printer_num &> /dev/null
   sleep 1
   report_status "Removing klipper-$printer_num service..."
-  sudo rm /etc/systemd/system/klipper-$printer_num.service
+  sudo rm /etc/systemd/system/klipper-$printer_num.service &> /dev/null
   sleep 1
   report_status "Your config file, printer-$printer_num.cfg is still available, under $KlipperFarm/printer-$printer_num..."
   sleep 3
@@ -909,10 +906,6 @@ while (( $printer_num <= $session_num ))
   printer_num=$(( printer_num+1 ))
   done
 # Remove Klipper from Services
-sleep 3
-report_status "#### Removing Klipper Service.."
-#sudo rm -f /etc/init.d/klipper /etc/default/klipper
-sudo rm /etc/systemd/system/klipper.service
 sleep 3
 # Notify user of method to remove Klipper source code
 sleep 3
