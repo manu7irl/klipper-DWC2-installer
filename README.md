@@ -19,7 +19,7 @@ If you install DWC for the first time,  the script will add the default sections
 tip: the virtual_sdcard folder path, can point to your ~/.octoprint/sdcard folder.
 So an uploaded gcode file through the octoprint ui will also appears on DWC and vice versa.  
 
-/
+```
      "=========================="
      "    INSTALL OR UPDATE     "
      "    KLIPPER & DWC2        "
@@ -35,7 +35,7 @@ So an uploaded gcode file through the octoprint ui will also appears on DWC and 
      "7. Uninstall KLIPPER & DWC"
      "8. Uninstall OCTOPRINT"
      "9. Exit"
-/
+```
 
 ```
 [virtual_sdcard]
