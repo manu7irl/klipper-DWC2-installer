@@ -440,6 +440,11 @@ then
   cd $GITSRC
   [ ! -d $GITSRC/dwc2-for-klipper ] && git clone https://github.com/Stephan3/dwc2-for-klipper.git &> /dev/null
   [ ! -d $KLIPPER/dwc2-for-klipper ]  && rsync -a $GITSRC/dwc2-for-klipper $KLIPPER &> /dev/null
+  report_status "Making a magical change in web_dwc2.py to make multi-session possible..."
+  #sed 's/*..*/' $KLIPPER/dwc2-for-klipper/web_dwc2.py
+  sed -i "s|'/tmp/printer'|config.get(\"serial_path\", \"/tmp/printer\")|g" $KLIPPER/dwc2-for-klipper/web_dwc2.py
+  #"s+DESC=\"OctoPrint\" Daemon\"+DESC=\"OctoPrint-$printer_num Daemon\"+g"
+  "s/USER=pi/USER=$userSelect/g"
   report_status "Connecting dwc2-for-klipper as an extra module for klippy -> web_dwc2.py..."
   web_dwc2=$KLIPPER/klippy/extras/web_dwc2.py
   if [ -f ${web_dwc2} ]
@@ -650,19 +655,19 @@ printer_num=0
 octo_config=$OctoPrintFarm/.octoprint-$printer_num
 while (( $printer_num <= $session_num ))
 do
-	[ ! -d ${octo_config} ] && mkdir -p $OctoPrintFarm/.octoprint-$printer_num
+	[ ! -d ${octo_config} ] && mkdir -p $octo_config
 	PORTcounter=$(( $PRT+$printer_num ))
 	cp $SERV_F/octoprint.init $OctoPrintFarm/octoprint.init
 	cp $SERV_F/octoprint.default $OctoPrintFarm/octoprint.default
-	sed -i "s/USER=pi/USER=$userSelect/g" octoprint.default
-	sed -i "s/PORT=5000/PORT=$PORTcounter/g" octoprint.default
-	sed -i "s+#DAEMON=/home/pi/OctoPrint/venv/bin/octoprint+DAEMON=$OCTOPRINT/venv/bin/octoprint+g" octoprint.default
-	sed -i 's|#BASEDIR=/home/pi/.octoprint|BASEDIR='$OctoPrintFarm'/.octoprint-'$printer_num'|g' octoprint.default
-	sed -i 's|#CONFIGFILE=/home/pi/.octoprint/config.yaml|CONFIGFILE='$OctoPrintFarm'/.octoprint-'$printer_num'/config.yaml|g' octoprint.default
-	sed -i "s/UMASK=022/UMASK=022/g" octoprint.default
-	sed -i "s+DESC=\"OctoPrint\" Daemon\"+DESC=\"OctoPrint-$printer_num Daemon\"+g" octoprint.init
-	sed -i "s+NAME=\"OctoPrint\"+NAME=\"OctoPrint-$printer_num\"+g" octoprint.init
-	sed -i "s/PKGNAME=octoprint/PKGNAME=octoprint-$printer_num/g" octoprint.init
+	sed -i "s/USER=pi/USER=$userSelect/g" $OctoPrintFarm/octoprint.default
+	sed -i "s/PORT=5000/PORT=$PORTcounter/g" $OctoPrintFarm/octoprint.default
+	sed -i "s+#DAEMON=/home/pi/OctoPrint/venv/bin/octoprint+DAEMON=$OCTOPRINT/venv/bin/octoprint+g" $OctoPrintFarm/octoprint.default
+	sed -i 's|#BASEDIR=/home/pi/.octoprint|BASEDIR='$OctoPrintFarm'/.octoprint-'$printer_num'|g' $OctoPrintFarm/octoprint.default
+	sed -i 's|#CONFIGFILE=/home/pi/.octoprint/config.yaml|CONFIGFILE='$OctoPrintFarm'/.octoprint-'$printer_num'/config.yaml|g' $OctoPrintFarm/octoprint.default
+	sed -i "s/UMASK=022/UMASK=022/g" $OctoPrintFarm/octoprint.default
+	sed -i "s+DESC=\"OctoPrint\" Daemon\"+DESC=\"OctoPrint-$printer_num Daemon\"+g" $OctoPrintFarm/octoprint.init
+	sed -i "s+NAME=\"OctoPrint\"+NAME=\"OctoPrint-$printer_num\"+g" $OctoPrintFarm/octoprint.init
+	sed -i "s/PKGNAME=octoprint/PKGNAME=octoprint-$printer_num/g" $OctoPrintFarm/octoprint.init
 	sudo mv $OctoPrintFarm/octoprint.init /etc/init.d/octoprint-$printer_num
 	sudo mv $OctoPrintFarm/octoprint.default /etc/default/octoprint-$printer_num
 	sudo chmod +x /etc/init.d/octoprint-$printer_num
