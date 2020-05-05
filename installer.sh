@@ -442,7 +442,6 @@ then
   [ ! -d $KLIPPER/dwc2-for-klipper ]  && rsync -a $GITSRC/dwc2-for-klipper $KLIPPER &> /dev/null
   report_status "Making a magical change in web_dwc2.py to make multi-session possible..."
   sed -i "s|'/tmp/printer'|config.get(\"serial_path\", \"/tmp/printer\")|g" $KLIPPER/dwc2-for-klipper/web_dwc2.py
-  "s/USER=pi/USER=$userSelect/g"
   report_status "Connecting dwc2-for-klipper as an extra module for klippy -> web_dwc2.py..."
   web_dwc2=$KLIPPER/klippy/extras/web_dwc2.py
   if [ -f ${web_dwc2} ]
