@@ -441,9 +441,7 @@ then
   [ ! -d $GITSRC/dwc2-for-klipper ] && git clone https://github.com/Stephan3/dwc2-for-klipper.git &> /dev/null
   [ ! -d $KLIPPER/dwc2-for-klipper ]  && rsync -a $GITSRC/dwc2-for-klipper $KLIPPER &> /dev/null
   report_status "Making a magical change in web_dwc2.py to make multi-session possible..."
-  #sed 's/*..*/' $KLIPPER/dwc2-for-klipper/web_dwc2.py
   sed -i "s|'/tmp/printer'|config.get(\"serial_path\", \"/tmp/printer\")|g" $KLIPPER/dwc2-for-klipper/web_dwc2.py
-  #"s+DESC=\"OctoPrint\" Daemon\"+DESC=\"OctoPrint-$printer_num Daemon\"+g"
   "s/USER=pi/USER=$userSelect/g"
   report_status "Connecting dwc2-for-klipper as an extra module for klippy -> web_dwc2.py..."
   web_dwc2=$KLIPPER/klippy/extras/web_dwc2.py
@@ -545,6 +543,8 @@ dwc_update(){
   git pull
   rm -vRf $KLIPPER/dwc2-for-klipper &> /dev/null
   rsync -a $GITSRC/dwc2-for-klipper $KLIPPER
+  report_status "Making a magical change in web_dwc2.py to make multi-session possible..."
+  sed -i "s|'/tmp/printer'|config.get(\"serial_path\", \"/tmp/printer\")|g" $KLIPPER/dwc2-for-klipper/web_dwc2.py
   cd $SERV_F
   latest_DWC=`curl -s https://api.github.com/repos/chrishamm/duetwebcontrol/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep SD`
   wget $latest_DWC &> /dev/null
