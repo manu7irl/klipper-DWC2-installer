@@ -53,6 +53,9 @@ web_path: dwc2/web
 # optional - defaulting to /tmp/printer, needed in order to get dwc multi-session
 serial_path: /tmp/printer-$printer-num
 ```
+your printer.cfg file should be placed under ~/PrinterFarm/KlipperFarm/printer-{0..9} folder and renamed after the corresponding printer-{0..9} folder.
+ex: if the folder is printer-0, the printer.cfg file should be printer-0.cfg
+
 
 **##NEW##**
 You will be presented to a set of question to decide to run it on which user and how many printers to be added.
