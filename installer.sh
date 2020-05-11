@@ -438,7 +438,7 @@ then
   ${PYTHONDIR}/bin/pip2 install tornado==5.1.1 &> /dev/null
   report_status "Cloning the dwc2-for-klipper folder from Stephan3 GITHUB..."
   cd $GITSRC
-  [ ! -d $GITSRC/dwc2-for-klipper ] && git clone https://github.com/Stephan3/dwc2-for-klipper.git &> /dev/null
+  [ ! -d $GITSRC/dwc2-for-klipper ] && git clone https://github.com/manu7irl/dwc2-for-klipper.git &> /dev/null
   [ ! -d $KLIPPER/dwc2-for-klipper ]  && rsync -a $GITSRC/dwc2-for-klipper $KLIPPER &> /dev/null
   report_status "Making a magical change in web_dwc2.py to make multi-session possible..."
   sed -i "s|'/tmp/printer'|config.get(\"serial_path\", \"/tmp/printer\")|g" $KLIPPER/dwc2-for-klipper/web_dwc2.py
@@ -462,10 +462,12 @@ then
   report_status "Doing some more magic... Correcting some stuff in $KLIPPER/klippy/gcode.py"
   sleep 2
   # make changes in klipper we need
-gcode=$(sed 's/self.bytes_read = 0/self.bytes_read = 0\n        self.respond_callbacks = []/g' klipper/klippy/gcode.py)
-gcode=$(echo "$gcode" | sed 's/# Response handling/def register_respond_callback(self, callback):\n        self.respond_callbacks.append(callback)/')
-gcode=$(echo "$gcode" | sed 's/os.write(self.fd, msg+"\\n")/os.write(self.fd, msg+"\\n")\n            for callback in self.respond_callbacks:\n                callback(msg+"\\n")/')
-echo "$gcode" > $KLIPPER/klippy/gcode.py
+  report_status "Patching $KLIPPER/klippy/gcode.py..."
+    patch -p0 -N -s --dry-run  $KLIPPER/klippy/gcode.py $KLIPPER/dwc2-for-klipper/dwc2_gcode_py.patch
+    if [ $? -eq 0 ];
+    then
+    patch -p0 -N  $KLIPPER/klippy/gcode.py $KLIPPER/dwc2-for-klipper/dwc2_gcode_py.patch
+    fi
 
   report_status "Creating a folder for nesting the DuetWebControl UI files"
   report_status "Downloading the official latest DWC release, from Chrishamm GITHUB..."
