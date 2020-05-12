@@ -514,7 +514,7 @@ then
             #	optional defaulting to dwc2/web. It's a folder relative to your $SDCARD path folder.
             web_path: $SDCARD/dwc2/web
             # optional - defaulting to /tmp/printer, needed in order to get dwc multi-session
-            serial_path: /tmp/printer-$printer-num
+            serial_path: /tmp/printer-$printer_num
 DWC2
     sleep 3
     new_port=$(( ${PORT}+${printer_num} ))
