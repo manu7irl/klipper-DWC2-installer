@@ -512,7 +512,7 @@ then
             # needed - use above 1024 as nonroot
             listen_port: $(( ${PORT}+${printer_num} ))
             #	optional defaulting to dwc2/web. It's a folder relative to your $SDCARD path folder.
-            web_path: $SDCARD/dwc2/web
+            web_path: /dwc2/web
             # optional - defaulting to /tmp/printer, needed in order to get dwc multi-session
             serial_path: /tmp/printer-$printer_num
 DWC2
