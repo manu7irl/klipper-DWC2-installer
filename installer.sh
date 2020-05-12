@@ -822,7 +822,7 @@ cat &> /dev/null<<AUTOSTART | sudo tee -a /etc/rc.local
 	#
 	# By default this script does nothing.
 
-	$OctoPrintFarm/Octo-scripts/webcam start
+	$OctoPrintFarm/octo-scripts/webcam start
 
 	exit0
 AUTOSTART
@@ -853,8 +853,8 @@ HOSTS
 
 report_status "Adding permission to Octoprint $userSelect user to reboot without password"
 report_status "..."
-[ -f /etc/sudoers.d/octoprint-fhutdown ] && sudo mv /etc/sudoers.d/octoprint-fhutdown /etc/sudoers.d/octoprint-fhutdown.bak &> /dev/null
-cat &> /dev/null<<SUDOER | sudo tee -a /etc/sudoers.d/octoprint-fhutdown 
+[ -f /etc/sudoers.d/octoprint-shutdown ] && sudo mv /etc/sudoers.d/octoprint-shutdown /etc/sudoers.d/octoprint-shutdown.bak &> /dev/null
+cat &> /dev/null<<SUDOER | sudo tee -a /etc/sudoers.d/octoprint-shutdown 
 
 	$userSelect ALL=NOPASSWD: /sbin/shutdown
 SUDOER
