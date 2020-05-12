@@ -456,18 +456,18 @@ then
     report_status "$dwc2_module is linked to KLIPPY"
     sleep 2
   fi
-  report_status "Backup for $KLIPPER/klippy/gcode.py file"
-  sleep 2
-  rsync -a $KLIPPER/klippy/gcode.py $KLIPPER/klippy/gcode.py.bak &> /dev/null
-  report_status "Doing some more magic... Correcting some stuff in $KLIPPER/klippy/gcode.py"
-  sleep 2
+  #report_status "Backup for $KLIPPER/klippy/gcode.py file"
+  #sleep 2
+  #rsync -a $KLIPPER/klippy/gcode.py $KLIPPER/klippy/gcode.py.bak &> /dev/null
+  #report_status "Doing some more magic... Correcting some stuff in $KLIPPER/klippy/gcode.py"
+  #sleep 2
   # make changes in klipper we need
-  report_status "Patching $KLIPPER/klippy/gcode.py..."
-    patch -p0 -N -s --dry-run  $KLIPPER/klippy/gcode.py $KLIPPER/dwc2-for-klipper/dwc2_gcode_py.patch
-    if [ $? -eq 0 ];
-    then
-    patch -p0 -N  $KLIPPER/klippy/gcode.py $KLIPPER/dwc2-for-klipper/dwc2_gcode_py.patch
-    fi
+  #report_status "Patching $KLIPPER/klippy/gcode.py..."
+    #patch -p0 -N -s --dry-run  $KLIPPER/klippy/gcode.py $KLIPPER/dwc2-for-klipper/dwc2_gcode_py.patch
+    #if [ $? -eq 0 ];
+    #then
+    #patch -p0 -N  $KLIPPER/klippy/gcode.py $KLIPPER/dwc2-for-klipper/dwc2_gcode_py.patch
+    #fi
 
   report_status "Creating a folder for nesting the DuetWebControl UI files"
   report_status "Downloading the official latest DWC release, from Chrishamm GITHUB..."
