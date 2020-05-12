@@ -547,6 +547,20 @@ dwc_update(){
   rsync -a $GITSRC/dwc2-for-klipper $KLIPPER
   report_status "Making a magical change in web_dwc2.py to make multi-session possible..."
   sed -i "s|'/tmp/printer'|config.get(\"serial_path\", \"/tmp/printer\")|g" $KLIPPER/dwc2-for-klipper/web_dwc2.py
+  report_status "Connecting dwc2-for-klipper as an extra module for klippy -> web_dwc2.py..."
+  web_dwc2=$KLIPPER/klippy/extras/web_dwc2.py
+  if [ -f ${web_dwc2} ]
+  then
+    report_status "$dwc2_module is already linked to KLIPPY"
+    sleep 2
+  else
+    user=$userSelect
+    ln -f $KLIPPER/dwc2-for-klipper/web_dwc2.py $KLIPPER/klippy/extras/web_dwc2.py
+    chown -h $userSelect:$userSelect $KLIPPER/klippy/extras/web_dwc2.py
+    dwc2_module=$(ls -A $KLIPPER/klippy/extras | grep -woh web_dwc2.py)
+    report_status "$dwc2_module is linked to KLIPPY"
+    sleep 2
+  fi
   cd $SERV_F
   latest_DWC=`curl -s https://api.github.com/repos/chrishamm/duetwebcontrol/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep SD`
   wget $latest_DWC &> /dev/null
@@ -572,12 +586,12 @@ dwc_update(){
     report_status "DWC2 server-$printer_num is running on http://$(hostname):$new_port or http://localhost:$new_port"
     printer_num=$(( printer_num+1 ))
   done
-rm $SERV_F/*.zip  
-report_status "..."
-sleep 5
-report_status "Congradulations... You should have $printerCount DWC2 server(s) updated!"
-while (( $printer_num <= $session_num ))
-    do
+    rm $SERV_F/*.zip  
+    report_status "..."
+    sleep 5
+    report_status "Congradulations... You should have $printerCount DWC2 server(s) updated!"
+  while (( $printer_num <= $session_num ))
+  do
     report_status "Restarting klipper-$printer_num service..."
     sudo systemctl restart klipper-$printer_num
     printer_num=$(( printer_num+1 ))
