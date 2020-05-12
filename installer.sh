@@ -280,6 +280,7 @@ git pull
 report_status "Moving the current klipper folder to backup $KLIPPER.bak"
 rsync -a $PYTHONDIR $KlipperFarm &> /dev/null
 rsync -a $KLIPPER $KLIPPER.bak &> /dev/null && rm -fR $KLIPPER &> /dev/null
+rm -Rf $KLIPPER &> /dev/null
 rsync -a $GITSRC/klipper $KlipperFarm &> /dev/null
 rsync -a $KlipperFarm/klippy-env $KLIPPER &> /dev/null
 rm -Rf $KlipperFarm/klippy-env &> /dev/null
