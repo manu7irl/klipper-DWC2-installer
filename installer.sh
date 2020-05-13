@@ -437,9 +437,9 @@ then
   report_status "Adding some magic to make dwc2-for-klipper working..."
   virtualenv $PYTHONDIR &> /dev/null
   ${PYTHONDIR}/bin/pip2 install tornado==5.1.1 &> /dev/null
-  report_status "Cloning the dwc2-for-klipper folder from Stephan3 GITHUB..."
+  report_status "Cloning the dwc2-for-klipper folder from Pluuuk GITHUB..."
   cd $GITSRC
-  [ ! -d $GITSRC/dwc2-for-klipper ] && git clone https://github.com/manu7irl/dwc2-for-klipper.git &> /dev/null
+  [ ! -d $GITSRC/dwc2-for-klipper ] && git clone https://github.com/pluuuk/dwc2-for-klipper.git &> /dev/null
   [ ! -d $KLIPPER/dwc2-for-klipper ]  && rsync -a $GITSRC/dwc2-for-klipper $KLIPPER &> /dev/null
   report_status "Making a magical change in web_dwc2.py to make multi-session possible..."
   sed -i "s|'/tmp/printer'|config.get(\"serial_path\", \"/tmp/printer\")|g" $KLIPPER/dwc2-for-klipper/web_dwc2.py
@@ -495,26 +495,25 @@ then
     sleep 2
     report_status "Creating the default sections [virtual_sdcard] and [web_dwc2], in your printer-$printer_num.cfg file, as describe in Stephan3 GITHUB"
     sleep 5
-    [ -f ${PRINTER_CFG} ] && cat <<DWC2 >> $PRINTER_FOLDER/printer-$printer_num.cfg
-            
-            #########################
-            # OPTIONAL DWC UI CONFIG
-            #########################
-            #you can also point all your printer to the same sd
-            [virtual_sdcard]
-            path: $SDCARD
+    [ -f ${PRINTER_CFG} ] && cat <<DWC2 >> $PRINTER_FOLDER/printer-$printer_num.cfg      
+#########################
+# OPTIONAL DWC UI CONFIG
+#########################
+#you can also point all your printer to the same sd
+[virtual_sdcard]
+path: $SDCARD
 
-            [web_dwc2]
-            # optional - defaulting to Klipper
-            printer_name: My-Printer-$printer_num
-            # optional - defaulting to 127.0.0.1
-            listen_adress: 0.0.0.0
-            # needed - use above 1024 as nonroot
-            listen_port: $(( ${PORT}+${printer_num} ))
-            #	optional defaulting to dwc2/web. It's a folder relative to your $SDCARD path folder.
-            web_path: /dwc2/web
-            # optional - defaulting to /tmp/printer, needed in order to get dwc multi-session
-            serial_path: /tmp/printer-$printer_num
+[web_dwc2]
+# optional - defaulting to Klipper
+printer_name: My-Printer-$printer_num
+# optional - defaulting to 127.0.0.1
+listen_adress: 0.0.0.0
+# needed - use above 1024 as nonroot
+listen_port: $(( ${PORT}+${printer_num} ))
+#	optional defaulting to dwc2/web. It's a folder relative to your $SDCARD path folder.
+web_path: /dwc2/web
+# optional - defaulting to /tmp/printer, needed in order to get dwc multi-session
+serial_path: /tmp/printer-$printer_num
 DWC2
     sleep 3
     new_port=$(( ${PORT}+${printer_num} ))
@@ -589,13 +588,15 @@ dwc_update(){
     rm $SERV_F/*.zip  
     report_status "..."
     sleep 5
-    report_status "Congradulations... You should have $printerCount DWC2 server(s) updated!"
-  while (( $printer_num <= $session_num ))
+    printer_num=0
+    while (( $printer_num <= $session_num ))
   do
     report_status "Restarting klipper-$printer_num service..."
     sudo systemctl restart klipper-$printer_num
     printer_num=$(( printer_num+1 ))
   done
+    report_status "Congradulations... You should have $printerCount DWC2 server(s) updated!"
+  
   sleep 3
 pause
 }
