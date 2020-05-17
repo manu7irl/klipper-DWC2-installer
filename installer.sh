@@ -473,7 +473,7 @@ then
   report_status "Creating a folder for nesting the DuetWebControl UI files"
   report_status "Downloading the official latest DWC release, from Chrishamm GITHUB..."
   cd $SERV_F
-  latest_DWC=`curl -s https://api.github.com/repos/chrishamm/duetwebcontrol/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep SD`
+  latest_DWC=`curl -s https://api.github.com/repositories/28820678/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep SD`
   [ -f *.zip ] && rm $SERV_F/*.zip 
   wget $latest_DWC &> /dev/null
   klipper_num=`find /etc/systemd/system -type f -name 'klipper-*' -printf x | wc -c`
