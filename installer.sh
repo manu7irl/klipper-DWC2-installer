@@ -211,10 +211,10 @@ klipper_install(){
             PRINTER_FOLDER=$KlipperFarm/printer-$printer_num
             SDCARD=$PRINTER_FOLDER/sdcard
             PRINTER_CFG=$PRINTER_FOLDER/printer-$printer_num.cfg
-            report_status "Creating a default printer-$printer_num.cfg under $PRINTER_CFG"
+            report_status "Creating a default printer-$printer_num_default.cfg under $PRINTER_CFG"
             [ ! -d ${PRINTER_FOLDER} ] && mkdir -p $PRINTER_FOLDER
             [ ! -d ${SDCARD} ] && mkdir -p $SDCARD
-            [ ! -f ${PRINTER_CFG} ] && cat &> /dev/null <<EXAMPLE > $PRINTER_FOLDER/printer-$printer_num.cfg
+            [ ! -f ${PRINTER_CFG} ] && cat &> /dev/null <<EXAMPLE > $PRINTER_FOLDER/printer-$printer_num_default.cfg
             #this is an example config to start with,
             #you will have to connect each printer separately first, 
             #to find the serial path of each one and configure this under:
@@ -226,6 +226,15 @@ klipper_install(){
             #and you will get the physical path to your printer, 
             #this path or id should be unique for each printer in order to run with the others without conflicts
 EXAMPLE
+            if [ $session_num == 0 ]
+            then
+            if [ -f $installLocation/printer.cfg ] && report_status "Moving and renaming your printer.cfg to the correct folder... under $PRINTER_FOLDER/"; sleep 3 && mv $installLocation/printer.cfg $KlipperFarm/$PRINTER_FOLDER
+            else
+            report_status "You do not a a printer.cfg file in $installLocation folder, do not forget to create one, in order to get the printer to work with klipper"
+            sleep 2
+            report_status "After you created a printer.cfg file move it to $PRINTER_FOLDER folder, and rename it printer-$printer_num.cfg"
+            sleep 2
+            fi
             KLIPPER_LOG=/tmp/klippy-$printer_num.log
             TMP_PRINTER=/tmp/printer-$printer_num
             report_status "Installing systemd startup script klipper-$printer_num..."
@@ -439,7 +448,7 @@ then
   ${PYTHONDIR}/bin/pip2 install tornado==5.1.1 &> /dev/null
   report_status "Cloning the dwc2-for-klipper folder from Pluuuk GITHUB..."
   cd $GITSRC
-  [ ! -d $GITSRC/dwc2-for-klipper ] && git clone https://github.com/pluuuk/dwc2-for-klipper.git &> /dev/null
+  [ ! -d $GITSRC/dwc2-for-klipper ] && git clone https://github.com/th33xitus/dwc2-for-klipper.git &> /dev/null
   [ ! -d $KLIPPER/dwc2-for-klipper ]  && rsync -a $GITSRC/dwc2-for-klipper $KLIPPER &> /dev/null
   report_status "Making a magical change in web_dwc2.py to make multi-session possible..."
   sed -i "s|'/tmp/printer'|config.get(\"serial_path\", \"/tmp/printer\")|g" $KLIPPER/dwc2-for-klipper/web_dwc2.py
