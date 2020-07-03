@@ -228,9 +228,9 @@ klipper_install(){
 EXAMPLE
             if [ $session_num == 0 ]
             then
-            [ -f $installLocation/printer.cfg ] && report_status "Moving and renaming your printer.cfg to the correct folder... under $PRINTER_FOLDER/"; sleep 3 && mv $installLocation/printer.cfg $KlipperFarm/$PRINTER_FOLDER
+            [ -f $installLocation/printer.cfg ] && report_status "Moving and renaming your printer.cfg to the correct folder... under $PRINTER_FOLDER/"; sleep 3 && mv $installLocation/printer.cfg $PRINTER_FOLDER/printer-0.cfg
             else
-            report_status "You do not a a printer.cfg file in $installLocation folder, do not forget to create one, in order to get the printer to work with klipper"
+            report_status "You do not a a printer.cfg file in $installLocation folder, do not forget to create one, and place it under $PRINTER_FOLDER/, in order to get the printer to work with klipper"
             sleep 2
             report_status "After you created a printer.cfg file move it to $PRINTER_FOLDER folder, and rename it printer-$printer_num.cfg"
             sleep 2
@@ -493,10 +493,11 @@ then
     report_status "Creating the default sections [virtual_sdcard] and [web_dwc2], in your printer-$printer_num.cfg file, as describe in Stephan3 GITHUB"
     sleep 5
     [ -f ${PRINTER_CFG} ] && cat <<DWC2 >> $PRINTER_FOLDER/printer-$printer_num.cfg      
+#Move that entire bolck above the do not edit line if you have it!
 #########################
 # OPTIONAL DWC UI CONFIG
 #########################
-#you can also point all your printer to the same sd
+#you can also point all your printer to the same virtualSD
 [virtual_sdcard]
 path: $SDCARD
 
@@ -527,6 +528,8 @@ DWC2
     do
     report_status "Restarting klipper-$printer_num service..."
     sudo systemctl restart klipper-$printer_num
+    KLIPPER_LOG=/tmp/klippy-$printer_num.log
+    ln -s $KLIPPER_LOG $SDCARD/sys/$KLIPPER_LOG
     printer_num=$(( printer_num+1 ))
   done
   else
