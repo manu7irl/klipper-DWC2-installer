@@ -228,7 +228,7 @@ klipper_install(){
 EXAMPLE
             if [ $session_num == 0 ]
             then
-            if [ -f $installLocation/printer.cfg ] && report_status "Moving and renaming your printer.cfg to the correct folder... under $PRINTER_FOLDER/"; sleep 3 && mv $installLocation/printer.cfg $KlipperFarm/$PRINTER_FOLDER
+            [ -f $installLocation/printer.cfg ] && report_status "Moving and renaming your printer.cfg to the correct folder... under $PRINTER_FOLDER/"; sleep 3 && mv $installLocation/printer.cfg $KlipperFarm/$PRINTER_FOLDER
             else
             report_status "You do not a a printer.cfg file in $installLocation folder, do not forget to create one, in order to get the printer to work with klipper"
             sleep 2
@@ -446,9 +446,9 @@ then
   report_status "Adding some magic to make dwc2-for-klipper working..."
   virtualenv $PYTHONDIR &> /dev/null
   ${PYTHONDIR}/bin/pip2 install tornado==5.1.1 &> /dev/null
-  report_status "Cloning the dwc2-for-klipper folder from Pluuuk GITHUB..."
+  report_status "Cloning the dwc2-for-klipper folder Stephan GITHUB..."
   cd $GITSRC
-  [ ! -d $GITSRC/dwc2-for-klipper ] && git clone https://github.com/th33xitus/dwc2-for-klipper.git &> /dev/null
+  [ ! -d $GITSRC/dwc2-for-klipper ] && git clone https://github.com/Stephan3/dwc2-for-klipper.git &> /dev/null
   [ ! -d $KLIPPER/dwc2-for-klipper ]  && rsync -a $GITSRC/dwc2-for-klipper $KLIPPER &> /dev/null
   report_status "Making a magical change in web_dwc2.py to make multi-session possible..."
   sed -i "s|'/tmp/printer'|config.get(\"serial_path\", \"/tmp/printer\")|g" $KLIPPER/dwc2-for-klipper/web_dwc2.py
@@ -466,18 +466,6 @@ then
     report_status "$dwc2_module is linked to KLIPPY"
     sleep 2
   fi
-  #report_status "Backup for $KLIPPER/klippy/gcode.py file"
-  #sleep 2
-  #rsync -a $KLIPPER/klippy/gcode.py $KLIPPER/klippy/gcode.py.bak &> /dev/null
-  #report_status "Doing some more magic... Correcting some stuff in $KLIPPER/klippy/gcode.py"
-  #sleep 2
-  # make changes in klipper we need
-  #report_status "Patching $KLIPPER/klippy/gcode.py..."
-    #patch -p0 -N -s --dry-run  $KLIPPER/klippy/gcode.py $KLIPPER/dwc2-for-klipper/dwc2_gcode_py.patch
-    #if [ $? -eq 0 ];
-    #then
-    #patch -p0 -N  $KLIPPER/klippy/gcode.py $KLIPPER/dwc2-for-klipper/dwc2_gcode_py.patch
-    #fi
 
   report_status "Creating a folder for nesting the DuetWebControl UI files"
   report_status "Downloading the official latest DWC release, from Chrishamm GITHUB..."
