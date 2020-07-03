@@ -214,7 +214,7 @@ klipper_install(){
             report_status "Creating a default printer-$printer_num_default.cfg under $PRINTER_CFG"
             [ ! -d ${PRINTER_FOLDER} ] && mkdir -p $PRINTER_FOLDER
             [ ! -d ${SDCARD} ] && mkdir -p $SDCARD
-            [ ! -f ${PRINTER_CFG} ] && cat &> /dev/null <<EXAMPLE > $PRINTER_FOLDER/printer-$printer_num_default.cfg
+            [ ! -f ${PRINTER_CFG} ] && cat &> /dev/null <<EXAMPLE > $PRINTER_FOLDER/printer-$printer_num.cfg
             #this is an example config to start with,
             #you will have to connect each printer separately first, 
             #to find the serial path of each one and configure this under:
@@ -516,6 +516,9 @@ DWC2
     sleep 3
     new_port=$(( ${PORT}+${printer_num} ))
     report_status "DWC2 server-$printer_num is running on http://$(hostname):$new_port or http://localhost:$new_port"
+    report_status "Linking $KLIPPER_LOG to $SDCARD/sys/klippy-$printer_num.log folder..."
+    KLIPPER_LOG=/tmp/klippy-$printer_num.log
+    ln -s $KLIPPER_LOG $SDCARD/sys/klippy-$printer_num.log
   printer_num=$(( printer_num+1 ))
   done
   [ -f $SERV_F/*.zip ] && rm $SERV_F/*.zip    
@@ -528,8 +531,6 @@ DWC2
     do
     report_status "Restarting klipper-$printer_num service..."
     sudo systemctl restart klipper-$printer_num
-    KLIPPER_LOG=/tmp/klippy-$printer_num.log
-    ln -s $KLIPPER_LOG $SDCARD/sys/klippy-$printer_num.log
     printer_num=$(( printer_num+1 ))
   done
   else
