@@ -529,7 +529,7 @@ DWC2
     report_status "Restarting klipper-$printer_num service..."
     sudo systemctl restart klipper-$printer_num
     KLIPPER_LOG=/tmp/klippy-$printer_num.log
-    ln -s $KLIPPER_LOG $SDCARD/sys/$KLIPPER_LOG
+    ln -s $KLIPPER_LOG $SDCARD/sys/klippy-$printer_num.log
     printer_num=$(( printer_num+1 ))
   done
   else
