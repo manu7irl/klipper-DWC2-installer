@@ -80,13 +80,13 @@ report_status "Welcome to my Klipper, DWC2 & Octoprint, global installer!"
 sleep 1
 report_status "Before we start it, some basic questions to get it running correctly..."
 sleep 1
-report_status "On Which unix user the Installer should be run on? watch out for typos!"
+report_status "On Which user should the Installer be run on? watch out for typos!"
 read userSelect
 while true; do
 	read -p "###### This Installer will be launched for user: $userSelect, are you sure?[Y/N]" yn
 	case $yn in
 		[Yy]* ) break;;
-   		[Nn]* ) report_status "On Which unix user this install should be run on? watch out for typos!"; read userSelect; continue;;
+   		[Nn]* ) report_status "On Which user should this install be run on? watch out for typos!"; read userSelect; continue;;
     		* ) report_status "Please answer by yes (Y/y) or no (N/n).";;
 	esac
 done
@@ -134,6 +134,8 @@ done
 report_status "Thanks! We collected enough information to launch the main menu!"
 report_status "Creating some folders..."
 [ ! -d $PrinterFarm ] && mkdir -p $PrinterFarm
+report_status "Adding some dependencies, that might be need on some systems..."
+sudo apt install git wget gzip tar build-essential libjpeg8-dev imagemagick libv4l-dev cmake -y
  
 klipper_install(){
   if [  -d "$KLIPPER" ] || [ -f /ect/systemd/system/klipper-* ]
@@ -228,7 +230,7 @@ klipper_install(){
 EXAMPLE
             if [ $session_num == 0 ]
             then
-            [ -f $installLocation/printer.cfg ] && report_status "Moving and renaming your printer.cfg to the correct folder... under $PRINTER_FOLDER/"; sleep 3 && mv $installLocation/printer.cfg $PRINTER_FOLDER/printer-0.cfg
+            [ -f ${installLocation}/printer.cfg ] && report_status "Moving and renaming your printer.cfg to the correct folder... under $PRINTER_FOLDER/" && sleep 3 && mv $installLocation/printer.cfg $PRINTER_FOLDER/printer-0.cfg
             else
             report_status "You do not a a printer.cfg file in $installLocation folder, do not forget to create one, and place it under $PRINTER_FOLDER/, in order to get the printer to work with klipper"
             sleep 2
