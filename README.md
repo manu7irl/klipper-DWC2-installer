@@ -3,14 +3,17 @@ This installer script is made to streamline the install or upgrade of KLIPPER an
 with these 2 together no need to use octoprint, so your hardware will not be bloated nor overloaded.
 I run mine on orangepi zero with H2+ CPU 512MB and it works nicely.
 Now the script is based on a new multi-session method, to make an ultimate "Klipper server" to connect multiple printers or only one if needed.
-You can by running it get klipper installed with DWC2 and octoprint, in less than 5 minutes!
+You can by running it get klipper installed with DWC2 and octoprint, in 
+less than 5 minutes!
+
+Do not run this script as root, as it will prevent you to do so.
 
 To run it:
 ```
-cd ~  
+cd ~ 
+sudo apt install git -y 
 git clone https://github.com/manu7irl/klipper-DWC2-installer
 cd klipper-DWC2-installer
-chmod +x
 ./installer.sh
 ```
 You will be presented to an interactive menu to install or update your system. 
