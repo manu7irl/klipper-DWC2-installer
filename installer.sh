@@ -135,7 +135,6 @@ report_status "Thanks! We collected enough information to launch the main menu!"
 report_status "Creating some folders..."
 [ ! -d $PrinterFarm ] && mkdir -p $PrinterFarm
 report_status "Adding some dependencies, that might be need on some systems..."
-sudo apt install git wget gzip tar build-essential libjpeg62-turbo-dev imagemagick libv4l-dev cmake -y
  
 klipper_install(){
   if [  -d "$KLIPPER" ] || [ -f /ect/systemd/system/klipper-* ]
